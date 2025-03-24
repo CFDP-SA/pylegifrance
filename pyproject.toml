@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/rdassignies/pylegifrance"
+Homepage = "https://github.com/hamid-mouti/pylegifrance"
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "twine>=4.0.2"]

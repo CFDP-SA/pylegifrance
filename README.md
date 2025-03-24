@@ -16,7 +16,7 @@
 
 <br />
   <!--<div align="center">
- <a href="https://github.com/rdassignies/pylegifrance">
+ <a href="https://github.com/hamid-mouti/pylegifrance">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
@@ -25,14 +25,14 @@
   <p align="center">
     project_description
     <br />
-    <a href="https://github.com/rdassignies/pylegifrance/docs"><strong>Documentation  »</strong></a>
+    <a href="https://github.com/hamid-mouti/pylegifrance/docs"><strong>Documentation  »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/rdassignies/pylegifrance">View Demo</a>
+    <a href="https://github.com/hamid-mouti/pylegifrance">View Demo</a>
     ·
-    <a href="https://github.com/rdassignies/pylegifrance/issues">Report Bug</a>
+    <a href="https://github.com/hamid-mouti/pylegifrance/issues">Report Bug</a>
     ·
-    <a href="https://github.com/rdassignies/pylegifrance/issues">Request Feature</a>
+    <a href="https://github.com/hamid-mouti/pylegifrance/issues">Request Feature</a>
   </p>
 </div> -->
 <!-- TABLE OF CONTENTS 
@@ -83,7 +83,7 @@ Elle repose sur l'utilisation de pydantic pour gérer les structures de données
 
 ## Démarrage
 
-Pour installer la librairie : `pip install git+https://github.com/rdassignies/pylegifrance `
+Pour installer la librairie : `pip install git+https://github.com/hamid-mouti/pylegifrance `
 
 Un package depuis PyPi sera accessible ultérieurement. 
 
