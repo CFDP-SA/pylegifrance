@@ -5,10 +5,14 @@ import requests
 import time
 import os
 import logging
+from dotenv import load_dotenv
+from requests.auth import HTTPBasicAuth
 
 import yaml
 
 from importlib import resources
+
+load_dotenv(override=True)
 
 with resources.open_text('pylegifrance', 'config.yaml') as file:
     config = yaml.safe_load(file)
@@ -40,11 +44,13 @@ class LegiHandler:
         LegiHandler.
 
         """
-        self.client_id = None
-        self.client_secret = None
+        self.client_id = os.getenv("CLIENT_ID")
+        self.client_secret = os.getenv("CLIENT_SECRET")
         self.token = ''
-        self.token_url = 'https://oauth.piste.gouv.fr/api/oauth/token'
-        self.api_url = 'https://api.piste.gouv.fr/dila/legifrance/lf-engine-app/'
+        self.token_url = 'https://sandbox-oauth.piste.gouv.fr/api/oauth/token'
+        self.api_url = 'https://sandbox-api.piste.gouv.fr/dila/legifrance/lf-engine-app'
+        self.time_token = 0
+        self.expires_in = 3600  # Valeur par défaut pour éviter une erreur
 
     def set_api_keys(self, legifrance_api_key=None, legifrance_api_secret=None):
        """
@@ -82,30 +88,37 @@ class LegiHandler:
            self._get_access()  # Renouveler le token uniquement si les clés ont changé
 
     def _get_access(self, attempts=3, delay=5):
-
+        """
+        Obtient un token d'accès pour l'API Legifrance.
+        """
         data = {
             'grant_type': 'client_credentials',
             'client_id': self.client_id,
             'client_secret': self.client_secret,
             'scope': 'openid'
         }
-        
-        for i in range(attempts):
-            response = requests.post(self.token_url, data=data)
-            if 200 <= response.status_code < 300:
-                token = response.json().get('access_token')
-                self.time_token = time.time()
-                self.token = token
-                self.expires_in = response.json().get('expires_in')
-                logging.info(f"Connexion à l'api legifrance réussie.")
-                break 
-            else:
-                if i < attempts - 1:  # Si ce n'est pas la dernière tentative
-                    time.sleep(delay)  # Attendre avant la prochaine tentative
-                else:
-                    raise Exception(f"Erreur lors de l'obtention du token après {attempts} tentatives."
-                                    "Dernière erreur : {response.status_code} - {response.text}")
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
 
+        for i in range(attempts):
+            response = requests.post(self.token_url, headers=headers, data=data)
+
+            if response.status_code == 200:
+                token_data = response.json()
+                self.token = token_data.get('access_token')
+                self.time_token = time.time()
+                self.expires_in = token_data.get('expires_in')
+
+                logging.info(f"✅ Connexion réussie à l'API Legifrance! Token : {self.token}")
+                return  # Succès, on sort de la fonction
+
+            logging.error(f"❌ Tentative {i + 1} échouée: {response.status_code} - {response.text}")
+
+            if i < attempts - 1:
+                time.sleep(delay)  # On attend avant de réessayer
+
+        raise Exception(f"❌ Échec de l'obtention du token après {attempts} tentatives.")
 
     def _update_client(self):
         """
@@ -128,11 +141,11 @@ class LegiHandler:
         }
         if data is not None:
 
-            response = requests.post(f"{self.api_url}{route}",headers=headers, json=data)
+            response = requests.post(f"{self.api_url}/{route}",headers=headers, json=data)
 
         if response.status_code >= 400 and response.status_code <= 500:
-            raise Exception(f"Erreur client {response.status_code} -"
-                            " {response.text} lors de l'appel à l'API :")
+            raise Exception(f"Erreur client {response.status_code} - {response.text} lors de l'appel à l'API :"
+                            f"\n Token: {self.token}, \nURL: {self.api_url}{route}")
 
         return response
 
